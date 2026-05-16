@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - SaaS Restaurante</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <button id="theme-btn" class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+    <div class="glass-container" style="max-width: 1200px;">
+        <div class="header" style="flex-wrap: wrap;">
+            <h2>⚙️ Panel de Administración</h2>
+            <div style="display:flex; gap: 1rem; align-items:center; flex-wrap:wrap;">
+                <span class="badge ready" id="lbl-rest">Restaurante</span>
+                
+                <!-- Enlaces directos para supervisar -->
+                <button class="btn" style="background:#8b5cf6;" onclick="window.open('mesero.html', '_blank')">📱 Ver Vista Mesero</button>
+                <button class="btn" style="background:#f43f5e;" onclick="window.open('cocina.html', '_blank')">👨‍🍳 Ver KDS Cocina</button>
+                
+                <button class="btn" style="background:var(--text-muted); padding:0.5rem 1rem;" onclick="logout()">Salir</button>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 2rem; flex-wrap:wrap;">
+            
+            <!-- Columna Menú -->
+            <div style="flex: 1; min-width: 300px;">
+                <div class="card" style="margin-bottom: 1rem;">
+                    <h3>Agregar al Menú</h3>
+                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <input type="text" id="p_name" class="input-field" placeholder="Ej. Pizza Margarita">
+                        <input type="number" id="p_price" class="input-field" placeholder="Precio en COP (ej. 15000)">
+                        <select id="p_cat" class="input-field">
+                            <option value="Comida">Comida</option>
+                            <option value="Bebida">Bebida</option>
+                            <option value="Postre">Postre</option>
+                        </select>
+                        <button class="btn success" onclick="addProduct()">Guardar Producto</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="overflow-y: auto; max-height: 250px;">
+                    <h3>Menú Actual</h3>
+                    <div id="menu-list" style="margin-top: 1rem; display:flex; flex-direction: column; gap: 0.5rem;"></div>
+                </div>
+            </div>
+
+            <!-- Columna Mesas -->
+            <div style="flex: 1; min-width: 300px;">
+                <div class="card" style="margin-bottom: 1rem;">
+                    <h3>Agregar Mesa</h3>
+                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <input type="text" id="t_name" class="input-field" placeholder="Nombre o Número (Ej. Mesa 1)">
+                        <button class="btn success" onclick="addTable()">Guardar Mesa</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="overflow-y: auto; max-height: 250px;">
+                    <h3>Mesas</h3>
+                    <div id="tables-list" style="margin-top: 1rem; display:flex; flex-direction: column; gap: 0.5rem;"></div>
+                </div>
+            </div>
+
+            <!-- Columna Personal -->
+            <div style="flex: 1; min-width: 300px;">
+                <div class="card" style="margin-bottom: 1rem; border:1px solid var(--primary)">
+                    <h3>Crear Cuenta de Empleado</h3>
+                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <input type="text" id="s_name" class="input-field" placeholder="Nombre del empleado">
+                        <input type="text" id="s_user" class="input-field" placeholder="Usuario de acceso">
+                        <input type="password" id="s_pwd" class="input-field" placeholder="Contraseña">
+                        <select id="s_role" class="input-field">
+                            <option value="mesero">Mesero</option>
+                            <option value="cocina">Cocina</option>
+                        </select>
+                        <button class="btn success" onclick="addStaff()">Guardar Empleado</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="overflow-y: auto; max-height: 250px;">
+                    <h3>Mi Equipo</h3>
+                    <div id="staff-list" style="margin-top: 1rem; display:flex; flex-direction: column; gap: 0.5rem;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const btn = document.getElementById('theme-btn');
+            if(btn) btn.innerText = current === 'dark' ? '☀️' : '🌙';
+
+            checkSession('admin');
+            document.getElementById('lbl-rest').innerText = localStorage.getItem("session_rest_name") || RESTAURANT_ID;
+            loadMenuAdmin();
+            loadTablesAdmin();
+            loadStaffAdmin();
+        });
+    </script>
+</body>
+</html>
