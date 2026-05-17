@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - La Mesa Dorada</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="padding: 0; display: block;">
+
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+        <div class="logo">PANEL ADMIN</div>
+        
+        <button class="nav-btn active" onclick="switchTab('dashboard')">DASHBOARD</button>
+        <button class="nav-btn" onclick="switchTab('inventory')">INVENTARIO</button>
+        <button class="nav-btn" onclick="switchTab('tables')">MESAS</button>
+        <button class="nav-btn" onclick="switchTab('staff')">PERSONAL</button>
+        <button class="nav-btn" onclick="switchTab('cashier')">CAJA / TURNOS</button>
+
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem;">
+            <button class="btn btn-outline" onclick="window.open('mesero.html', '_blank')">VISTA POS</button>
+            <button class="btn btn-outline" onclick="window.open('cocina.html', '_blank')">VISTA KDS</button>
+            <button class="btn danger" onclick="logout()">CERRAR SESIÓN</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+        <div class="header" style="margin-bottom: 2rem;">
+            <h2>BIENVENIDO, <span id="lbl-rest" style="color: var(--primary);">RESTAURANTE</span></h2>
+            <button id="theme-btn" class="theme-toggle" style="position: static;" onclick="toggleTheme()">🌙</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="section-content active">
+            <h3 style="margin-bottom: 1rem;">RESUMEN FINANCIERO</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>Ventas del Día</h4>
+                    <div class="value" id="dash-earnings">$0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Órdenes Completadas</h4>
+                    <div class="value" id="dash-orders">0</div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="card" style="border-top: 3px solid var(--primary);">
+                        <h3 style="margin-bottom: 1rem;">ÚLTIMOS MOVIMIENTOS</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Orden</th>
+                                    <th>Mesa</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-history">
+                                <tr><td colspan="4">Cargando movimientos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div style="flex: 1; min-width: 300px; max-width: 400px;">
+                    <div class="card" style="border-top: 3px solid var(--danger);">
+                        <h3 style="color: var(--danger); margin-bottom: 1rem;">ALERTAS DE STOCK</h3>
+                        <div id="dash-alerts">
+                            <p style="color:var(--text-muted)">Cargando alertas...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div id="tab-inventory" class="section-content">
+            <h3 style="margin-bottom: 1rem;">GESTIÓN DE INVENTARIO</h3>
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px; max-width: 400px;">
+                    <div class="card">
+                        <h3 style="font-size:1rem; margin-bottom:1rem;">NUEVO PRODUCTO</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <input type="text" id="p_name" class="input-field" placeholder="Nombre del Producto">
+                            <input type="number" id="p_price" class="input-field" placeholder="Precio (COP)">
+                            <select id="p_cat" class="input-field">
+                                <option value="Comida">Comida</option>
+                                <option value="Bebida">Bebida</option>
+                                <option value="Postre">Postre</option>
+                            </select>
+                            <input type="number" id="p_stock" class="input-field" placeholder="Stock Inicial">
+                            <button class="btn success" onclick="addProduct()">Guardar Producto</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="flex: 2; min-width: 400px;">
+                    <div class="card" style="max-height: 600px; overflow-y: auto;">
+                        <h3 style="font-size:1rem; margin-bottom:1rem;">CATÁLOGO ACTUAL</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="menu-list"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Tab -->
+        <div id="tab-tables" class="section-content">
+            <h3 style="margin-bottom: 1rem;">CONFIGURACIÓN DE MESAS</h3>
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px; max-width: 400px;">
+                    <div class="card">
+                        <h3 style="font-size:1rem; margin-bottom:1rem;">NUEVA MESA</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <input type="text" id="t_name" class="input-field" placeholder="Identificador (Ej: Mesa 1)">
+                            <button class="btn success" onclick="addTable()">Guardar Mesa</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="flex: 2; min-width: 300px;">
+                    <div class="card" style="max-height: 500px; overflow-y: auto;">
+                        <h3 style="font-size:1rem; margin-bottom:1rem;">MESAS ACTIVAS</h3>
+                        <div id="tables-list" style="display:flex; flex-direction: column; gap: 0.5rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Tab -->
+        <div id="tab-staff" class="section-content">
+            <h3 style="margin-bottom: 1rem;">GESTIÓN DE PERSONAL</h3>
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px; max-width: 400px;">
+                    <div class="card">
+                        <h3 style="font-size:1rem; margin-bottom:1rem;">NUEVO EMPLEADO</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <input type="text" id="s_name" class="input-field" placeholder="Nombre completo">
+                            <input type="text" id="s_user" class="input-field" placeholder="Usuario de acceso">
+                            <input type="password" id="s_pwd" class="input-field" placeholder="Contraseña">
+                            <select id="s_role" class="input-field">
+                                <option value="mesero">Mesero (POS)</option>
+                                <option value="cocina">Cocina (KDS)</option>
+                            </select>
+                            <button class="btn success" onclick="addStaff()">Crear Cuenta</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="flex: 2; min-width: 400px;">
+                    <div class="card" style="max-height: 500px; overflow-y: auto;">
+                        <h3 style="font-size:1rem; margin-bottom:1rem;">DIRECTORIO DE PERSONAL</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Usuario</th>
+                                    <th>Rol</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-list"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cashier Tab -->
+        <div id="tab-cashier" class="section-content">
+            <h3 style="margin-bottom: 1rem;">CONTROL DE CAJA</h3>
+            <div class="card" style="max-width: 600px; border-top: 3px solid var(--warning);">
+                <h3 style="font-size:1rem; margin-bottom:1rem;">ESTADO ACTUAL DE TURNO</h3>
+                
+                <div id="shift-status-container" style="padding: 1.5rem; background: var(--input-bg); border-radius: var(--radius); text-align: center; border: 1px solid var(--border-color);">
+                    <p style="color:var(--text-muted)">Consultando estado de caja...</p>
+                </div>
+                
+                <div id="shift-open-form" style="margin-top: 1.5rem; display: none; flex-direction: column; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">APERTURA DE TURNO</p>
+                    <input type="number" id="opening_balance" class="input-field" placeholder="Efectivo Inicial en Caja">
+                    <button class="btn success" onclick="openShift()">ABRIR CAJA</button>
+                </div>
+
+                <div id="shift-close-form" style="margin-top: 1.5rem; display: none; flex-direction: column; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">CIERRE DE TURNO (CORTE Z)</p>
+                    <input type="number" id="closing_balance" class="input-field" placeholder="Efectivo Final Reportado">
+                    <button class="btn danger" onclick="closeShift()">EJECUTAR CIERRE DE CAJA</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const btn = document.getElementById('theme-btn');
+            if(btn) btn.innerText = current === 'dark' ? '☀️' : '🌙';
+
+            checkSession('admin');
+            document.getElementById('lbl-rest').innerText = localStorage.getItem("session_rest_name") || RESTAURANT_ID;
+            
+            loadDashboard();
+            loadMenuAdmin();
+            loadTablesAdmin();
+            loadStaffAdmin();
+            loadShiftAdmin();
+        });
+    </script>
+</body>
+</html>

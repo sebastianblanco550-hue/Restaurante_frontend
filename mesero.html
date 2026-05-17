@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de Venta - SaaS Restaurante</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="padding: 1rem; align-items: stretch;">
+
+    <button id="theme-btn" class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+    <div class="pos-layout" style="width: 100%; max-width: 1400px; margin: 0 auto;">
+        
+        <!-- Panel Principal (Mesas y Menú) -->
+        <div class="pos-main">
+            <div class="header" style="margin-bottom: 1.5rem;">
+                <h2>📱 Toma de Pedido</h2>
+                <button class="btn btn-outline" style="padding:0.5rem 1rem" onclick="logout()">Salir</button>
+            </div>
+            
+            <!-- Mesas Grid -->
+            <div>
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--text-muted);">Selecciona una Mesa</h3>
+                <input type="hidden" id="mesa" value="">
+                <div id="tables-grid" class="tables-grid">
+                    <p style="color:var(--text-muted)">Cargando mesas...</p>
+                </div>
+            </div>
+
+            <!-- Buscador y Menú -->
+            <div style="margin-top: 2rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                    <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-muted);">Productos</h3>
+                    <input type="text" id="menu-search" class="input-field" placeholder="🔍 Buscar producto..." style="max-width: 300px; padding: 0.5rem 1rem;" onkeyup="filterMenu()">
+                </div>
+                
+                <div id="menu-buttons" class="grid-menu">
+                    <p style="color:var(--text-muted)">Cargando menú...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Fijo (Carrito) -->
+        <div class="pos-sidebar">
+            <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:1rem; font-size: 1.2rem;">🛒 Órden Actual</h3>
+            
+            <div id="cart-items" style="flex:1; overflow-y:auto; margin-bottom: 1rem; padding-right: 0.5rem;">
+                <p style="color:var(--text-muted); text-align: center; margin-top: 2rem;">No hay productos</p>
+            </div>
+            
+            <div style="border-top: 1px solid var(--border-color); padding-top:1rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 0.5rem; font-weight: 500;">
+                    <span>Subtotal:</span>
+                    <span id="cart-subtotal">$0</span>
+                </div>
+                
+                <div style="margin-bottom: 0.5rem;">
+                    <span style="display:block; margin-bottom:0.5rem; font-size:0.85em; color:var(--text-muted);">Propina:</span>
+                    <div style="display:flex; gap:0.5rem;">
+                        <button class="btn btn-outline" style="flex:1; padding:0.25rem; font-size:0.85em;" onclick="updateTip(0)">0%</button>
+                        <button class="btn btn-outline" style="flex:1; padding:0.25rem; font-size:0.85em;" onclick="updateTip(10)">10%</button>
+                        <button class="btn btn-outline" style="flex:1; padding:0.25rem; font-size:0.85em;" onclick="updateTip(15)">15%</button>
+                    </div>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom: 1rem; font-size:0.9em; color: var(--text-muted);">
+                    <span>Propina Calculada:</span>
+                    <span id="cart-tip">$0</span>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; font-size:1.5rem; font-weight:bold; border-top: 2px dashed var(--border-color); padding-top: 0.75rem; color: var(--primary);">
+                    <span>Total:</span>
+                    <span id="cart-total">$0</span>
+                </div>
+            </div>
+
+            <button id="btn-send" class="btn success" style="width: 100%; margin-top: 1.5rem; font-size: 1.1rem; padding: 1rem;" onclick="openPaymentModal()" disabled>Cobrar y Enviar</button>
+        </div>
+    </div>
+
+    <!-- Modal Calculadora de Cambio -->
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Cerrar Cuenta</h3>
+            
+            <div style="text-align:center; margin-bottom: 1.5rem;">
+                <span style="font-size: 0.9rem; color: var(--text-muted);">Monto a Pagar</span>
+                <div id="payment-total-display" style="font-size: 2.5rem; font-weight: bold; color: var(--text-main);">$0</div>
+            </div>
+
+            <label style="display:block; margin-bottom: 0.5rem; font-weight:500;">Efectivo Recibido (COP)</label>
+            <input type="number" id="cash-received" class="input-field" placeholder="Ej: 50000" style="font-size: 1.5rem; text-align: center; margin-bottom: 1rem;" onkeyup="calculateChange()">
+            
+            <div style="background: var(--bg-main); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 500;">Cambio a Devolver:</span>
+                <span id="change-display" style="font-size: 1.5rem; font-weight: bold; color: var(--success);">$0</span>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn success" style="flex:1" onclick="sendOrder()">Confirmar Pago</button>
+                <button class="btn btn-outline" style="flex:1" onclick="closePaymentModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Factura -->
+    <div id="invoice-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 320px;">
+            <div id="invoice-content" style="margin-bottom: 20px;"></div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn success" style="flex:1" onclick="printInvoice()">Imprimir</button>
+                <button class="btn btn-outline" style="flex:1" onclick="closeInvoice()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const btn = document.getElementById('theme-btn');
+            if(btn) btn.innerText = current === 'dark' ? '☀️' : '🌙';
+
+            checkSession('mesero');
+            addAdminBackButton();
+            loadTablesGrid();
+            loadMenuWaiter();
+        });
+    </script>
+</body>
+</html>
